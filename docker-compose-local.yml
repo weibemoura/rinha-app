@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  rinha-pg:
+    image: postgres:15
+    container_name: rinha-pg
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgresql:/pgdata:rw
+      - $PWD/contrib/ddl.sql:/docker-entrypoint-initdb.d/ddl.sql:ro
+    environment:
+      - POSTGRES_USER=rinha
+      - POSTGRES_PASSWORD=rinha@123
+      - POSTGRES_DB=rinha-db
+      - PGDATA=/pgdata
+    command: "postgres -c max_connections=200 -c shared_buffers=256MB -c synchronous_commit=off -c fsync=off -c full_page_writes=off"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.75'
+          memory: '1GB'
+    networks:
+      - net
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U rinha -d rinha-db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+volumes:
+  postgresql:
+    driver: local
+
+networks:
+  net:
+    driver: bridge
