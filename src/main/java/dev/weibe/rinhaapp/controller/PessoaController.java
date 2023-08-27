@@ -5,6 +5,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
+import jakarta.validation.Validator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,18 +18,24 @@ import jakarta.validation.Valid;
 @RestController
 public class PessoaController {
 
+    private final Validator validator;
     private final PessoaRepository pessoaRepository;
 
-    public PessoaController(PessoaRepository pessoaRepository) {
+    public PessoaController(Validator validator, PessoaRepository pessoaRepository) {
+        this.validator = validator;
         this.pessoaRepository = pessoaRepository;
     }
 
     @PostMapping("/pessoas")
-    ResponseEntity<Pessoa> create(@Valid @RequestBody Pessoa pessoa) {
-        pessoaRepository.findByApelido(pessoa.getApelido())
-                .ifPresent(p -> {
-                    throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "");
-                });
+    ResponseEntity<Pessoa> create(@RequestBody Pessoa pessoa) {
+        var violations = validator.validate(pessoa);
+        if (!violations.isEmpty())
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+
+
+        var exists = pessoaRepository.findByApelido(pessoa.getApelido());
+        if (exists.isPresent())
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
 
         pessoa = pessoaRepository.create(pessoa);
         return ResponseEntity.created(URI.create("/pessoas/"+pessoa.getId())).build();

@@ -7,10 +7,7 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import dev.weibe.rinhaapp.util.validation.ListItems;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
 public class Pessoa {
 

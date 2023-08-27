@@ -10,7 +10,7 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ListItems {
 
-    String message() default "The input list cannot contain more than 4 movies.";
+    String message() default "Invalid stack item";
 
     Class<?>[] groups() default {};
 
